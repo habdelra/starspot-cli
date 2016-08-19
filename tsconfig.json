@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    // Enhance strictness
+    "noImplicitAny": true,
+
+    // Module configuration
+    "moduleResolution": "node",
+    "target": "es2015",
+    "module": "commonjs",
+    "declaration": true
+  },
+
+  "include": [
+    "src/**/*.ts",
+    "typings/**/*.d.ts"
+  ]
+}
