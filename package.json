@@ -45,6 +45,7 @@
     "mz": "^2.4.0",
     "native-dns": "^0.7.0",
     "route-recognizer": "^0.2.1",
+    "starspot": "^0.2.1",
     "wordwrap": "^1.0.0"
   }
 }
