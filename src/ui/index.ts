@@ -96,10 +96,12 @@ export default class UI {
       message = inspect(event);
     }
 
-    let formattedCategory = printCategory ? categoryColor(` ${category.toUpperCase()} `) + " " : "";
+    if (!message) { return; }
+
+    let formattedCategory = printCategory ? categoryColor(` ${category.toUpperCase()} `) : "";
     message = pad(message, category.length + 3, printCategory);
 
-    console.log(formattedCategory, color(message));
+    console.log(formattedCategory + color(message));
   }
 }
 
@@ -114,7 +116,7 @@ function pad(str: string, categoryLength: number, printCategory: boolean): strin
     .map(c => " ".repeat(categoryLength) + c)
     .join("\n");
 
-  return printCategory ? trimLeft(centered) : centered;
+  return printCategory ? " " + trimLeft(centered) : centered;
 }
 
 function trimLeft(message: string): string {

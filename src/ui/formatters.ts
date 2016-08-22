@@ -1,3 +1,5 @@
+import { white, blue, dim } from "chalk";
+
 /**
  * Formatters turn JSON event objects into user-readable messages to be printed
  * to the console.
@@ -21,6 +23,19 @@ export default <Formatters>{
 
     "dns-started"() {
       return "DNS server started";
+    },
+
+    "dispatch-start"() {
+      return null;
+    },
+
+    "dispatch-not-found"({ path }) {
+      return `404 - ${path}`;
+    },
+
+    "dispatch-dispatching"({ path, controller, method }) {
+      let invocation = blue(controller + dim(".") + method + dim("()"));
+      return `${white(path)} ⇒ ${invocation}`;
     }
   },
 
