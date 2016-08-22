@@ -1,3 +1,4 @@
+import * as dotenv from "dotenv";
 import { Application } from "starspot";
 import * as http2 from "http2";
 import { readFile } from "mz/fs";
@@ -14,6 +15,11 @@ export interface ServerAddressInfo {
 
 export default class ServerTask extends Task<ServerAddressInfo> {
   async run(): Promise<ServerAddressInfo> {
+    dotenv.config({
+      path: this.project.rootPath + "/.env",
+      silent: true
+    });
+
     let app = await this.bootApp();
 
     let [key, cert] = await readSSLCerts();
