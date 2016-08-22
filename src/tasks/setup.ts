@@ -18,6 +18,7 @@ export default class SetupTask extends Task<void> {
     let subtasks = await this.findSubtasks();
 
     if (!subtasks.length) { return; }
+    if (process.env.NODE_ENV === "production") { return; }
 
     let okayToProceed = await this.ui.askOne({
       name: "ask-setup",
