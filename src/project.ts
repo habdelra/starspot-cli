@@ -3,6 +3,8 @@ import { dirname } from "path";
 import UI from "./ui";
 import { Application } from "starspot";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export default class Project {
   rootPath: string;
   appPath: string;
@@ -13,7 +15,7 @@ export default class Project {
   constructor() {
     this.ui = new UI();
     this.rootPath = findRootPath();
-    this.appPath = this.rootPath + "/src/app";
+    this.appPath = this.rootPath + (isProduction ? "/dist/src/app" : "/src/app");
     this.pkg = JSON.parse(readFileSync(this.rootPath + "/package.json").toString());
     this.name = this.pkg.name;
   }
