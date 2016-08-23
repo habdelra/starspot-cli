@@ -1,9 +1,15 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, readdirSync } from "fs";
 import { dirname } from "path";
 import UI from "./ui";
 import { Application } from "starspot";
+import Task from "./tasks";
+import Command from "./command";
 
 const isProduction = process.env.NODE_ENV === "production";
+
+export interface TaskConstructor {
+  new (options: any): Task<any>;
+}
 
 export default class Project {
   rootPath: string;
@@ -20,11 +26,16 @@ export default class Project {
     this.name = this.pkg.name;
   }
 
-  getTask<T>(TaskClass: { new (options: any): T }): T {
+  getTask<T>(taskName: string): Task<T> {
+    let TaskClass: TaskConstructor = require(__dirname + `/tasks/${taskName}`);
+    return this.getTaskClass<T>(TaskClass);
+  }
+
+  getTaskClass<T>(TaskClass: TaskConstructor): Task<T> {
     return new TaskClass({
       ui: this.ui,
       project: this
-    }) as T;
+    });
   }
 
   getApplication(): Application {
@@ -33,6 +44,16 @@ export default class Project {
       ui: this.ui,
       rootPath: this.appPath
     }) as Application;
+  }
+
+  get commands(): Command[] {
+    let commandList = readdirSync(__dirname + "/commands");
+    return commandList
+      .filter(path => path.substr(-3) === ".js")
+      .map(path => {
+        let C = require("./commands/" + path).default;
+        return new C();
+      });
   }
 }
 

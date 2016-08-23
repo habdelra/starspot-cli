@@ -1,6 +1,6 @@
 import { exec } from "mz/child_process";
 import { stat, mkdir } from "mz/fs";
-import Task from "../task";
+import Task from ".";
 import { SetupSubtask } from "./setup";
 import { SSL_KEY_PATH, SSL_CERT_PATH, DNS_TLD } from "../config";
 

@@ -1,6 +1,6 @@
-import UI from "./ui";
-import Project from "./project";
-import HandledError from "./errors/handled-error";
+import UI from "../ui";
+import Project from "../project";
+import HandledError from "../errors/handled-error";
 
 export interface ConstructorOptions {
   ui: UI;
@@ -16,9 +16,9 @@ abstract class Task<T> {
     this.project = project;
   }
 
-  protected abstract run(): Promise<T>;
+  protected abstract run(): Promise<T> | Promise<void>;
 
-  public invoke(): Promise<T> {
+  public invoke(): Promise<T> | Promise<void> {
     return this.run()
       .catch(e => {
         this.ui.error(e);

@@ -1,4 +1,4 @@
-import Task from "../task";
+import Task from ".";
 import InstallResolverTask from "./install-resolver";
 import GenerateSSLCerts from "./generate-ssl-certs";
 

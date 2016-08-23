@@ -26,9 +26,25 @@ const COLORS: { [index: string]: [Function, Function]} = {
   error: [chalk.bgRed.white, chalk.red]
 };
 
+export interface ConstructorOptions {
+  inputStream?: NodeJS.ReadableStream;
+  outputStream?: NodeJS.WritableStream;
+  errorStream?: NodeJS.WritableStream;
+}
+
 export default class UI {
   private logLevel = LogLevel.Info;
   private lastCategory: Category = null;
+
+  private inputStream: NodeJS.ReadableStream;
+  private outputStream: NodeJS.WritableStream;
+  private errorStream: NodeJS.WritableStream;
+
+  constructor(options: ConstructorOptions = {}) {
+    this.inputStream = options.inputStream || process.stdin;
+    this.outputStream = options.outputStream || process.stdout;
+    this.errorStream = options.errorStream || process.stderr;
+  }
 
   askOne(event: Event) {
     event.category = event.category || "prompt";

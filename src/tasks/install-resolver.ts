@@ -1,6 +1,6 @@
 import { stat } from "mz/fs";
 import { exec } from "mz/child_process";
-import Task from "../task";
+import Task from ".";
 import { SetupSubtask } from "./setup";
 import { DNS_PORT, DNS_TLD } from "../config";
 

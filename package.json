@@ -9,7 +9,7 @@
     "prepublish": "npm run build"
   },
   "bin": {
-    "starspot": "./dist/bin/start.js"
+    "starspot": "./dist/bin/starspot.js"
   },
   "files": [
     "dist"
@@ -32,6 +32,7 @@
     "@types/mocha": "^2.2.29",
     "@types/mz": "0.0.26",
     "@types/node": "^6.0.33",
+    "@types/resolve": "0.0.2",
     "chai": "^3.5.0",
     "mocha": "^3.0.2",
     "ts-node": "^1.2.3",
@@ -46,6 +47,7 @@
     "inquirer": "^1.1.2",
     "mz": "^2.4.0",
     "native-dns": "^0.7.0",
+    "resolve": "^1.1.7",
     "route-recognizer": "^0.2.1",
     "starspot": "^0.2.1",
     "wordwrap": "^1.0.0"
