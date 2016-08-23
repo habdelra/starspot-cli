@@ -15,7 +15,7 @@ export default class Project {
   constructor() {
     this.ui = new UI();
     this.rootPath = findRootPath();
-    this.appPath = this.rootPath + (isProduction ? "/dist/src/app" : "/src/app");
+    this.appPath = this.rootPath + (isProduction ? "/dist/app" : "/app");
     this.pkg = JSON.parse(readFileSync(this.rootPath + "/package.json").toString());
     this.name = this.pkg.name;
   }
