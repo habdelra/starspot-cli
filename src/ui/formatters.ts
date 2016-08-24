@@ -1,6 +1,6 @@
-import { white, blue, dim } from "chalk";
+import { blue, dim } from "chalk";
 
-/**
+/*
  * Formatters turn JSON event objects into user-readable messages to be printed
  * to the console.
  */
@@ -29,13 +29,17 @@ export default <Formatters>{
       return null;
     },
 
-    "dispatch-not-found"({ path }) {
-      return `404 - ${path}`;
+    "dispatch-route-not-found"({ verb, path }) {
+      return `${verb} ${path} → 404`;
     },
 
-    "dispatch-dispatching"({ path, controller, method }) {
+    "dispatch-dispatching"({ verb, path, controller, method }) {
       let invocation = blue(controller + dim(".") + method + dim("()"));
-      return `${white(path)} ⇒ ${invocation}`;
+      return `${verb} ${path} → ${invocation}`;
+    },
+
+    "dispatch-complete"({ verb, path, time }) {
+      return `${verb} ${path} ← ${blue(formatHRTime(time))}`;
     }
   },
 
@@ -67,3 +71,17 @@ ${subtaskMessage}\n
     }
   }
 };
+
+function formatHRTime([seconds, nanoseconds]: [number, number]): string {
+  let result: string[] = [];
+
+  if (seconds) {
+    result.push(`${seconds}s`);
+  }
+
+  let milliseconds = nanoseconds / 1000000;
+  result.push(`${milliseconds}ms`);
+  result.push(` (${Math.round(60000 / milliseconds)} req/s)`);
+
+  return result.join("");
+}
