@@ -85,16 +85,16 @@ export default class Project {
       });
   }
 
-  private get fileExtension(): string {
+  public get isTypeScript(): boolean {
     let pkg = this.pkg;
     let deps = pkg.dependencies || {};
     let devDeps = pkg.devDependencies || {};
 
-    if (deps["typescript"] || devDeps["typescript"]) {
-      return "ts";
-    }
+    return !!(deps["typescript"] || devDeps["typescript"]);
+  }
 
-    return "js";
+  private get fileExtension(): string {
+    return this.isTypeScript ? "ts" : "js";
   }
 
   /*

@@ -1,10 +1,11 @@
 import Command from "../command";
+import { ServerAddressInfo } from "../tasks/server";
 
 const defaultPort = process.env.PORT || 8000;
 
 export default class ServerCommand extends Command {
   static command = "serve";
-  static description = "Star  ts a development HTTPS server.";
+  static description = "Starts a development HTTPS server.";
 
   static aliases = ["server", "s"];
 
@@ -26,23 +27,25 @@ export default class ServerCommand extends Command {
     { name: "ssl-cert",             type: String,  default: "ssl/server.crt" }
   ];
 
-  async run() {
-    let task = this.project.getTask("server");
+  async run(): Promise<ServerAddressInfo> {
+    if (this.env.isDevelopment) {
+      let setupTask = this.project.getTask("setup");
+      await setupTask.invoke();
+    }
 
-    await task.invoke();
+    let dnsTask = this.project.getTask("start-dns");
+    let serverTask = this.project.getTask("server");
+
+    let [, address] = await Promise.all<void, ServerAddressInfo>([dnsTask.invoke(), serverTask.invoke()]);
+
+    this.ui.info({ name: "server-started", address });
+
+    return address;
   }
 }
 
-// import "ts-node/register";
 // import { red } from "chalk";
 
-// let version = Number(process.version.match(/^v(\d+\.\d+)/)[1]);
-// if (version < 6) {
-//   console.log(red(`Starspot requires Node 6 or later. You are currently using Node ${process.version}`));
-//   process.exit(1);
-// }
-
-// import { fork } from "mz/child_process";
 // import Project from "../project";
 // import HandledError from "../errors/handled-error";
 
@@ -56,8 +59,6 @@ export default class ServerCommand extends Command {
 //     project.ui.info({ name: "server-started", address });
 //   })
 //   .then(() => {
-//     fork(__dirname + "/../dns");
-//     project.ui.info({ name: "dns-started" });
 //   })
 //   .catch(e => {
 //     if (!(e instanceof HandledError)) {

@@ -1,5 +1,6 @@
 import UI from "./ui";
 import Project from "./project";
+import Environment from "./environment";
 import Command from "./command";
 import HandledError from "./errors/handled-error";
 
@@ -13,12 +14,14 @@ export interface CLIOptions {
   /** Command line arguments. */
   argv?: string[];
   project?: Project;
+  env?: Environment;
 }
 
 export default class CLI {
   private argv: string[];
   private ui: UI;
   private project: Project;
+  private env: Environment;
 
   constructor(options: CLIOptions = {}) {
     this.ui = new UI({
@@ -28,8 +31,12 @@ export default class CLI {
     });
 
     this.argv = options.argv || process.argv.slice(2);
-
     this.project = options.project || new Project();
+    this.env = options.env || new Environment();
+
+    if (this.project.isTypeScript) {
+      require("ts-node/register");
+    }
   }
 
   async run(): Promise<any> {
@@ -39,14 +46,18 @@ export default class CLI {
     let command = this.findCommand(commandName);
 
     if (command) {
-      return command.run();
+      try {
+        return command.run();
+      } catch (e) {
+        if (!(e instanceof HandledError)) {
+          this.ui.error(e);
+        }
+      }
     } else {
       this.ui.error({
         name: "no-such-command",
         command: commandName
       });
-
-      throw new HandledError("No such command " + commandName);
     }
   }
 
@@ -60,7 +71,8 @@ export default class CLI {
 
     return new CurrentCommand({
       ui: this.ui,
-      project: this.project
+      project: this.project,
+      env: this.env
     });
   }
 }

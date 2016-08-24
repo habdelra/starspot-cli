@@ -10,8 +10,8 @@ export interface SetupSubtask {
 
 export default class SetupTask extends Task {
   private setupTasks: SetupSubtask[] = [
-    new InstallResolverTask({ ui: this.ui, project: this.project }),
-    new GenerateSSLCerts({ ui: this.ui, project: this.project })
+    new InstallResolverTask({ ui: this.ui, project: this.project, env: this.env }),
+    new GenerateSSLCerts({ ui: this.ui, project: this.project, env: this.env })
   ];
 
   async run() {

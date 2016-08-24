@@ -1,19 +1,23 @@
 import UI from "./ui";
 import Project from "./project";
+import Environment from "./environment";
 import HandledError from "./errors/handled-error";
 
 export interface ConstructorOptions {
   ui: UI;
   project: Project;
+  env: Environment;
 }
 
 abstract class Task {
   protected ui: UI;
   protected project: Project;
+  protected env: Environment;
 
-  constructor({ ui, project }: ConstructorOptions) {
-    this.ui = ui;
-    this.project = project;
+  constructor(options: ConstructorOptions) {
+    this.ui = options.ui;
+    this.env = options.env;
+    this.project = options.project;
   }
 
   protected abstract run<U>(): Promise<U>;

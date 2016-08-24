@@ -1,4 +1,5 @@
 import Project from "./project";
+import Environment from "./environment";
 import UI from "./ui";
 
 export interface Alias {
@@ -13,8 +14,9 @@ export interface CommandOptions {
 }
 
 export interface ConstructorOptions {
+  ui: UI;
   project?: Project;
-  ui?: UI;
+  env?: Environment;
 }
 
 abstract class Command {
@@ -23,10 +25,12 @@ abstract class Command {
   public static availableOptions: CommandOptions[];
   protected project: Project;
   protected ui: UI;
+  protected env: Environment;
 
-  constructor(options: ConstructorOptions = {}) {
-    this.project = options.project;
+  constructor(options: ConstructorOptions) {
     this.ui = options.ui;
+    this.project = options.project;
+    this.env = options.env;
   }
 
   abstract async run(): Promise<any>;
