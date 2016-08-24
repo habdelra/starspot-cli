@@ -31,8 +31,10 @@ export default class CLI {
     });
 
     this.argv = options.argv || process.argv.slice(2);
-    this.project = options.project || new Project();
     this.env = options.env || new Environment();
+    this.project = options.project || new Project({
+      ui: this.ui
+    });
 
     if (this.project.isTypeScript) {
       require("ts-node/register");
