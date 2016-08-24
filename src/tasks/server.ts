@@ -3,7 +3,7 @@ import { Application } from "starspot";
 import * as http from "http";
 import * as http2 from "http2";
 import { readFile } from "mz/fs";
-import Task from ".";
+import Task from "../task";
 // import SSLNotFoundError from "../errors/ssl-not-found-error";
 import { SSL_KEY_PATH, SSL_CERT_PATH, DNS_TLD } from "../config";
 
@@ -65,7 +65,7 @@ export default class ServerTask extends Task<ServerAddressInfo> {
   }
 
   async bootApp(): Promise<Application> {
-    let app = this.project.getApplication();
+    let app = this.project.application;
     await app.boot();
 
     return app;

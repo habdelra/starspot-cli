@@ -3,12 +3,12 @@ import Command from "../command";
 const defaultPort = process.env.PORT || 8000;
 
 export default class ServerCommand extends Command {
-  name = "serve";
-  description = "Starts a development HTTPS server.";
+  static command = "serve";
+  static description = "Star  ts a development HTTPS server.";
 
-  aliases = ["server", "s"];
+  static aliases = ["server", "s"];
 
-  availableOptions = [
+  static availableOptions = [
     { name: "port",                 type: Number,  default: defaultPort,   aliases: ["p"] },
     { name: "host",                 type: String,                          aliases: ["H"],     description: "Listens on all interfaces by default" },
     { name: "proxy",                type: String,                          aliases: ["pr", "pxy"] },

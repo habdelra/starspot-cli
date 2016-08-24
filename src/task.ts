@@ -1,6 +1,6 @@
-import UI from "../ui";
-import Project from "../project";
-import HandledError from "../errors/handled-error";
+import UI from "./ui";
+import Project from "./project";
+import HandledError from "./errors/handled-error";
 
 export interface ConstructorOptions {
   ui: UI;

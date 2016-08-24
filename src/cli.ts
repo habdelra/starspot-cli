@@ -11,6 +11,7 @@ export interface CLIOptions {
   errorStream?: NodeJS.WritableStream;
   /** Command line arguments. */
   argv?: string[];
+  project?: Project;
 }
 
 export default class CLI {
@@ -27,7 +28,7 @@ export default class CLI {
 
     this.argv = options.argv || process.argv.slice(2);
 
-    this.project = new Project();
+    this.project = options.project || new Project();
   }
 
   run(): Promise<any> {
@@ -46,9 +47,15 @@ export default class CLI {
     }
   }
 
-  findCommand(commandName: string): Command {
-    return this.project.commands.find(candidate => {
-      return candidate.name === commandName || candidate.aliases.indexOf(commandName) > -1;
+  private findCommand(commandName: string): Command {
+    let CurrentCommand = this.project.commands.find(candidate => {
+      return candidate.command === commandName ||
+        (candidate.aliases && candidate.aliases.indexOf(commandName) > -1);
+    });
+
+    return new CurrentCommand({
+      ui: this.ui,
+      project: this.project
     });
   }
 }
