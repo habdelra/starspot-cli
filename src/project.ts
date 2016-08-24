@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, readdirSync } from "fs";
-import { dirname } from "path";
+import { dirname, relative } from "path";
 import UI from "./ui";
 import { Application } from "starspot";
 import Task from "./task";
 import Command, { ConstructorOptions as CommandConstructorOptions } from "./command";
 
 export interface TaskConstructor {
-  new (options: any): Task<any>;
+  new (options: any): Task;
 }
 
 export interface CommandConstructor {
@@ -40,11 +40,11 @@ export default class Project {
   }
 
   get appPath(): string {
-    let path = this.isProduction ? "/dist/app" : "/app"
+    let path = this.isProduction ? "/dist/app" : "/app";
     return this.rootPath + path;
   }
 
-  getTask<T>(taskName: string): Task<T> {
+  getTask(taskName: string): Task {
     let TaskClass: TaskConstructor = require(__dirname + `/tasks/${taskName}`).default;
     return new TaskClass({
       ui: this.ui,
@@ -55,8 +55,22 @@ export default class Project {
   get application(): Application {
     if (this._application) { return this._application; }
 
-    let ApplicationClass = require(this.appPath + "/application").default;
-    return this._application =new (ApplicationClass as any)({
+    let ApplicationClass: any;
+    let applicationPath = this.appPath + "/application";
+    let relativePath = relative(this.cwd, applicationPath);
+    let fileExtension = this.fileExtension;
+
+    try {
+      ApplicationClass = require(applicationPath).default;
+    } catch (e) {
+      throw new Error(`Starspot couldn't find an Application class to instantiate. Create a new file at ${relativePath}.${fileExtension} and make sure it exports a subclass of Application as its default export.`);
+    }
+
+    if (!ApplicationClass) {
+      throw new Error(`Starspot loaded your ${relativePath}.${fileExtension} file but it doesn't have a default export. Make sure you export a subclass of Application as the default export.`);
+    }
+
+    return this._application = new (ApplicationClass as any)({
       ui: this.ui,
       rootPath: this.appPath
     }) as Application;
@@ -65,10 +79,22 @@ export default class Project {
   get commands(): CommandConstructor[] {
     let commandList = readdirSync(__dirname + "/commands");
     return commandList
-      .filter(path => path.substr(-3).match(/.js|.ts/))
+      .filter(path => isJSOrTS(path))
       .map(path => {
         return require("./commands/" + path).default;
       });
+  }
+
+  private get fileExtension(): string {
+    let pkg = this.pkg;
+    let deps = pkg.dependencies || {};
+    let devDeps = pkg.devDependencies || {};
+
+    if (deps["typescript"] || devDeps["typescript"]) {
+      return "ts";
+    }
+
+    return "js";
   }
 
   /*
@@ -90,5 +116,14 @@ export default class Project {
     if (!found) { return null; }
 
     return curPath;
+  }
+}
+
+function isJSOrTS(path: string): boolean {
+  let extension = path.substr(-3);
+
+  if (extension === ".js") { return true; }
+  if (extension === ".ts") {
+    return path.substr(-5) !== ".d.ts";
   }
 }

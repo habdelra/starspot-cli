@@ -7,7 +7,7 @@ export interface ConstructorOptions {
   project: Project;
 }
 
-abstract class Task<T> {
+abstract class Task {
   protected ui: UI;
   protected project: Project;
 
@@ -16,10 +16,10 @@ abstract class Task<T> {
     this.project = project;
   }
 
-  protected abstract run(): Promise<T> | Promise<void>;
+  protected abstract run<U>(): Promise<U>;
 
-  public invoke(): Promise<T> | Promise<void> {
-    return this.run()
+  public invoke<U>(): Promise<U> {
+    return this.run<U>()
       .catch(e => {
         this.ui.error(e);
         throw new HandledError(e);

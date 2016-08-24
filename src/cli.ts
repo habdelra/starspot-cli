@@ -1,6 +1,7 @@
 import UI from "./ui";
 import Project from "./project";
 import Command from "./command";
+import HandledError from "./errors/handled-error";
 
 export interface CLIOptions {
   /** Stream to read input from. Defaults to stdin. */
@@ -31,9 +32,9 @@ export default class CLI {
     this.project = options.project || new Project();
   }
 
-  run(): Promise<any> {
+  async run(): Promise<any> {
     let commandName = this.argv.shift() || "server";
-    let commandArgs = this.argv;
+    // let commandArgs = this.argv;
 
     let command = this.findCommand(commandName);
 
@@ -44,6 +45,8 @@ export default class CLI {
         name: "no-such-command",
         command: commandName
       });
+
+      throw new HandledError("No such command " + commandName);
     }
   }
 
@@ -52,6 +55,8 @@ export default class CLI {
       return candidate.command === commandName ||
         (candidate.aliases && candidate.aliases.indexOf(commandName) > -1);
     });
+
+    if (!CurrentCommand) { return null; }
 
     return new CurrentCommand({
       ui: this.ui,

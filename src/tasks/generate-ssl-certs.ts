@@ -4,7 +4,7 @@ import Task from "../task";
 import { SetupSubtask } from "./setup";
 import { SSL_KEY_PATH, SSL_CERT_PATH, DNS_TLD } from "../config";
 
-export default class GenerateSSLCertsTask extends Task<void> implements SetupSubtask {
+export default class GenerateSSLCertsTask extends Task implements SetupSubtask {
   public installMessage = `
     Generate a self-signed SSL certificate and tell the system to trust it
   `;

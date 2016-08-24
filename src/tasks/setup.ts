@@ -8,7 +8,7 @@ export interface SetupSubtask {
   installMessage: string;
 }
 
-export default class SetupTask extends Task<void> {
+export default class SetupTask extends Task {
   private setupTasks: SetupSubtask[] = [
     new InstallResolverTask({ ui: this.ui, project: this.project }),
     new GenerateSSLCerts({ ui: this.ui, project: this.project })

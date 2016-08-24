@@ -7,7 +7,7 @@ import { DNS_PORT, DNS_TLD } from "../config";
 const RESOLVER_PATH = "/etc/resolver/";
 const RESOLVER_DOMAIN_PATH = `${RESOLVER_PATH}${DNS_TLD}`;
 
-export default class InstallResolverTask extends Task<void> implements SetupSubtask {
+export default class InstallResolverTask extends Task implements SetupSubtask {
   public installMessage = `
     Install a DNS resolver that points https://*.${DNS_TLD} to localhost
   `;
