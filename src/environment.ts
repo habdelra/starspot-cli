@@ -14,8 +14,7 @@ export default class Environment {
     }
 
     this.mode = mode || process.env.NODE_ENV || "development";
-
-    this.isDevelopment = mode === "development";
-    this.isProduction = mode === "production";
+    this.isDevelopment = this.mode === "development";
+    this.isProduction = this.mode === "production";
   }
 }
