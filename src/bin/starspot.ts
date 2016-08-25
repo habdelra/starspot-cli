@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import * as resolve from "resolve";
+import _CLI from "../cli";
 
 resolve("starspot-cli", {
   basedir: process.cwd()
 }, function(error, projectLocalCli) {
-  let CLI: any;
+  let CLI: typeof _CLI;
 
   if (error) {
     // If there is an error, resolve could not find the ember-cli
@@ -20,5 +21,8 @@ resolve("starspot-cli", {
   }
 
   let cli = new CLI();
-  cli.run();
+  cli.run()
+    .catch(e => {
+      console.log(e);
+    });
 });
