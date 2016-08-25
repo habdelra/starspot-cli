@@ -1,11 +1,18 @@
 import { expect } from "chai";
+
+import { StubUI } from "./helpers/stubs";
+
 import Project from "../src/project";
 import Task from "../src/task";
 import Command from "../src/command";
 import UI from "../src/ui";
 
 describe("Project", function() {
-  let basicProjectFixture = __dirname + "/fixtures/basic-project/foo/bar";
+  function fixture(fixturePath: string) {
+    return `${__dirname}/fixtures/${fixturePath}`;
+  }
+
+  let basicProjectFixture = fixture("basic-project/foo/bar");
 
   it("can be instantiated", function() {
     let project = new Project();
@@ -93,5 +100,47 @@ describe("Project", function() {
     });
 
     expect(commands.length).to.equal(1);
+  });
+
+  it("discovers installed in-app addons", function() {
+    let ui = new StubUI();
+    ui.expect(["addon-no-package-json", "addon-malformed-package-json", "addon-not-really-an-addon"]);
+
+    let project = new Project({
+      ui: ui,
+      cwd: fixture("in-app-addons-project")
+    });
+
+    expect(project.addons.map(a => a.name)).to.include.members(["addon-a", "addon-b"]);
+    expect(ui.loggedEvents).to.deep.include({
+      name: "addon-no-package-json",
+      category: "warn",
+      addon: "empty-directory"
+    });
+
+    expect(ui.loggedEvents).to.deep.include({
+      name: "addon-malformed-package-json",
+      category: "warn",
+      addon: "malformed-package-json"
+    });
+
+    expect(ui.loggedEvents).to.deep.include({
+      name: "addon-not-really-an-addon",
+      category: "warn",
+      addon: "not-an-addon"
+    });
+  });
+
+  it("discovers commands in addons", function() {
+    let project = new Project({
+      cwd: fixture("addons-with-commands-project")
+    });
+
+    let myCommand = project.commands
+      .find(command => command.command === "my-command");
+
+    expect(myCommand).to.exist;
+    expect(myCommand.prototype).to.be.an.instanceof(Command);
+
   });
 });

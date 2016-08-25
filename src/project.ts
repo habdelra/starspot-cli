@@ -1,8 +1,12 @@
 import { existsSync, readFileSync, readdirSync } from "fs";
 import { dirname, relative } from "path";
-import UI from "./ui";
+
 import { Application } from "starspot";
+
+import UI from "./ui";
 import Task from "./task";
+import Addon from "./addon";
+import Environment from "./environment";
 import Command, { ConstructorOptions as CommandConstructorOptions } from "./command";
 
 export interface TaskConstructor {
@@ -19,12 +23,15 @@ export interface ConstructorOptions {
   cwd?: string;
   ui?: UI;
   isProduction?: boolean;
+  env?: Environment;
 }
+
+type AddonPkg = [string, any];
 
 export default class Project {
   cwd: string;
   rootPath: string;
-  isProduction: boolean;
+  env: Environment;
   pkg: any;
   name: string;
   ui: UI;
@@ -32,15 +39,23 @@ export default class Project {
 
   constructor(options: ConstructorOptions = {}) {
     this.cwd = options.cwd || process.cwd();
+
+    this.env = options.env || new Environment();
+    this.ui = options.ui || new UI();
+
     this.rootPath = this.findRootPath();
-    this.isProduction = options.isProduction || process.env.NODE_ENV === "production";
+
     this.pkg = JSON.parse(readFileSync(this.rootPath + "/package.json").toString());
     this.name = this.pkg.name;
-    this.ui = options.ui || new UI();
   }
 
   get appPath(): string {
-    let path = this.isProduction ? "/dist/app" : "/app";
+    let path = this.env.isProduction ? "/dist/app" : "/app";
+    return this.rootPath + path;
+  }
+
+  get addonsPath(): string {
+    let path = this.env.isProduction ? "/dist/addons" : "/addons";
     return this.rootPath + path;
   }
 
@@ -77,12 +92,32 @@ export default class Project {
   }
 
   get commands(): CommandConstructor[] {
-    let commandList = readdirSync(__dirname + "/commands");
-    return commandList
-      .filter(path => isJSOrTS(path))
-      .map(path => {
-        return require("./commands/" + path).default;
-      });
+    return this.builtInCommands.concat(this.addonCommands);
+  }
+
+  get addons(): Addon[] {
+    let ui = this.ui;
+    let addonsPath = this.addonsPath;
+    let potentialAddons: string[];
+
+    try {
+      potentialAddons = readdirSync(addonsPath);
+    } catch (e) {
+      if (e.code === "ENOENT") {
+        return [];
+      }
+
+      throw e;
+    }
+
+    // Loop through the directories in /addons, trying to read a package.json
+    // file. We filter out any directories that don't have a package.json or
+    // don't include "starspot-addon" in their keywords, but emit a warning that
+    // they are not being used.
+    return potentialAddons
+      .map(addonPath => readAddonPkg(addonsPath, addonPath, ui))
+      .filter(addon => isAddonPkg(addon, ui))
+      .map(addon => loadAddon(addonsPath, addon));
   }
 
   public get isTypeScript(): boolean {
@@ -95,6 +130,22 @@ export default class Project {
 
   private get fileExtension(): string {
     return this.isTypeScript ? "ts" : "js";
+  }
+
+  get builtInCommands(): CommandConstructor[] {
+    let commandList = readdirSync(__dirname + "/commands");
+    return commandList
+      .filter(path => isJSOrTS(path))
+      .map(path => {
+        return require("./commands/" + path).default;
+      });
+  }
+
+  get addonCommands(): CommandConstructor[] {
+    return this.addons.reduce((commands, addon) => {
+      if (!addon.commands) { return commands; }
+      return commands.concat(addon.commands);
+    }, []);
   }
 
   /*
@@ -126,4 +177,60 @@ function isJSOrTS(path: string): boolean {
   if (extension === ".ts") {
     return path.substr(-5) !== ".d.ts";
   }
+}
+
+// Try to read an addon's package.json. If the file can't be found or
+// read, emit a warning but don't crash the boot.
+function readAddonPkg(addonsPath: string, addonPath: string, ui: UI): AddonPkg {
+  let pkgPath = `${addonsPath}/${addonPath}/package.json`;
+
+  try {
+    let file = readFileSync(pkgPath, "utf8");
+    return [addonPath, JSON.parse(file)];
+  } catch (e) {
+    if (e.code === "ENOENT") {
+      ui.warn({
+        name: "addon-no-package-json",
+        addon: addonPath
+      });
+
+      return [addonPath, null];
+    } else if (e instanceof SyntaxError) {
+      ui.warn({
+        name: "addon-malformed-package-json",
+        addon: addonPath
+      });
+
+      return [addonPath, null];
+    }
+
+    // If this isn't an error we can handle, rethrow it.
+    throw e;
+  }
+}
+
+function isAddonPkg([addonPath, pkg]: AddonPkg,  ui: UI): boolean {
+   if (pkg && pkg.keywords && pkg.keywords.includes("starspot-addon")) {
+     return true;
+   }
+
+   ui.warn({
+     name: "addon-not-really-an-addon",
+     addon: addonPath
+   });
+
+   return false;
+}
+
+function loadAddon(addonsPath: string, [addonPath, pkg]: AddonPkg) {
+  let AddonClass = require(`${addonsPath}/${addonPath}`).default;
+
+  if (!AddonClass || !(AddonClass.prototype instanceof Addon)) {
+    throw new Error(`In-app addon ${addonPath} did not export a subclass of Addon as its default export.`);
+  }
+
+  let addon = new AddonClass();
+  addon.name = pkg.name;
+
+  return addon;
 }

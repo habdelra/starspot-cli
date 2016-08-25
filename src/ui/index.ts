@@ -1,52 +1,25 @@
+import { UI as BaseUI } from "starspot";
 import { inspect } from "util";
 import * as chalk from "chalk";
 import * as inquirer from "inquirer";
 import * as wrap from "wordwrap";
 
+import "./ext/inquirer";
+
 import getWindowSize from "../utils/window-size";
 import formatters from "./formatters";
 
-let Confirm = (inquirer as any)["prompt"]["prompts"]["confirm"];
-Confirm.prototype.getQuestion = function () {
-  let message = " " + chalk.cyan(this.opt.message) + " ";
-
-  // Append the default if available, and if question isn't answered
-  if (this.opt.default != null && this.status !== "answered") {
-    message += chalk.dim("(" + this.opt.default + ") ");
-  }
-
-  return message;
-};
-
-export type Category = "info" | "warn" | "error" | "prompt";
-
 const COLORS: { [index: string]: [Function, Function]} = {
   info: [chalk.bgCyan.white, chalk.cyan],
+  warn: [chalk.bgYellow.white, chalk.yellow],
   prompt: [chalk.bgCyan.white, chalk.cyan],
   error: [chalk.bgRed.white, chalk.red]
 };
 
-export interface ConstructorOptions {
-  inputStream?: NodeJS.ReadableStream;
-  outputStream?: NodeJS.WritableStream;
-  errorStream?: NodeJS.WritableStream;
-}
+class UI extends BaseUI {
+  private lastCategory: UI.Category = null;
 
-export default class UI {
-  private logLevel = LogLevel.Info;
-  private lastCategory: Category = null;
-
-  private inputStream: NodeJS.ReadableStream;
-  private outputStream: NodeJS.WritableStream;
-  private errorStream: NodeJS.WritableStream;
-
-  constructor(options: ConstructorOptions = {}) {
-    this.inputStream = options.inputStream || process.stdin;
-    this.outputStream = options.outputStream || process.stdout;
-    this.errorStream = options.errorStream || process.stderr;
-  }
-
-  askOne(event: Event) {
+  askOne(event: UI.Event) {
     event.category = event.category || "prompt";
 
     let prelude: any;
@@ -70,28 +43,7 @@ export default class UI {
       });
   }
 
-  info(event: Event) {
-    if (this.logLevel > LogLevel.Info) { return; }
-
-    event.category = "info";
-    this._log(event);
-  }
-
-  warn(event: Event) {
-    if (this.logLevel > LogLevel.Warn) { return; }
-
-    event.category = "warn";
-    this._log(event);
-  }
-
-  error(event: Event) {
-    if (this.logLevel > LogLevel.Error) { return; }
-
-    event.category = "error";
-    this._log(event);
-  }
-
-  _log(event: Event) {
+  _log(event: UI.Event) {
     let { category } = event;
     let [categoryColor, color] = COLORS[category];
     let formatter = formatters[category] && formatters[category][event.name];
@@ -139,17 +91,9 @@ function trimLeft(message: string): string {
   return message.replace(/^\s+/, "");
 }
 
-export enum LogLevel {
-  VeryVerbose,
-  Verbose,
-  Info,
-  Warn,
-  Error
+namespace UI {
+  export type Category = BaseUI.Category;
+  export type Event = BaseUI.Event;
 }
 
-export interface Event {
-  name: string;
-  category?: Category;
-  logLevel?: LogLevel;
-  [key: string]: any;
-};
+export default UI;

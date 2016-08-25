@@ -1,5 +1,5 @@
 import UI from "./ui";
-import Project from "./project";
+import Project, { CommandConstructor } from "./project";
 import Environment from "./environment";
 import Command from "./command";
 import HandledError from "./errors/handled-error";
@@ -36,7 +36,7 @@ export default class CLI {
       ui: this.ui
     });
 
-    if (this.project.isTypeScript) {
+    if (this.project.isTypeScript && !this.env.isProduction) {
       require("ts-node/register");
     }
   }
@@ -45,7 +45,12 @@ export default class CLI {
     let commandName = this.argv.shift() || "server";
     // let commandArgs = this.argv;
 
-    let command = this.findCommand(commandName);
+    let command: Command;
+
+    command = this.findCommand(this.project.builtInCommands, commandName);
+    if (!command) {
+      command = this.findCommand(this.project.addonCommands, commandName);
+    }
 
     if (command) {
       try {
@@ -63,13 +68,18 @@ export default class CLI {
     }
   }
 
-  private findCommand(commandName: string): Command {
-    let CurrentCommand = this.project.commands.find(candidate => {
+  private findCommand(commands: CommandConstructor[], commandName: string): Command {
+    let CurrentCommand = commands.find(candidate => {
       return candidate.command === commandName ||
         (candidate.aliases && candidate.aliases.indexOf(commandName) > -1);
     });
 
     if (!CurrentCommand) { return null; }
+
+    this.ui.verbose({
+      name: "cli-invoking-command",
+      command: CurrentCommand.command
+    });
 
     return new CurrentCommand({
       ui: this.ui,

@@ -1,7 +1,7 @@
 import Project from "../../src/project";
 import Task from "../../src/task";
 import Environment from "../../src/environment";
-import UI, { Event } from "../../src/ui";
+import UI from "../../src/ui";
 import { EventEmitter } from "events";
 
 export interface TaskConstructorOptions {
@@ -53,9 +53,21 @@ export class StubProject extends Project {
 }
 
 export class StubUI extends UI {
-  loggedEvents: Event[] = [];
+  loggedEvents: UI.Event[] = [];
 
-  _log(event: Event) {
-    this.loggedEvents.push(event);
+  private _hasExpectedEvents = false;
+  private _expectedEvents: string[] = [];
+
+  expect(eventNames: string[]) {
+    this._hasExpectedEvents = true;
+    this._expectedEvents.push(...eventNames);
   }
+
+  _log(event: UI.Event) {
+    this.loggedEvents.push(event);
+    if (this._hasExpectedEvents && !this._expectedEvents.includes(event.name)) {
+      throw new Error("UI received unexpected event " + event.name);
+    }
+  }
+
 }

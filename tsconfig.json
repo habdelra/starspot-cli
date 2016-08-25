@@ -4,6 +4,7 @@
     "noImplicitAny": true,
 
     // Module configuration
+    "lib": ["es2016"],
     "moduleResolution": "node",
     "target": "es2015",
     "module": "commonjs",
