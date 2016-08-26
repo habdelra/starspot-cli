@@ -136,10 +136,14 @@ export default class Project {
   }
 
   get addonCommands(): CommandConstructor[] {
-    return this.addons.reduce((commands, addon) => {
-      if (!addon.commands) { return commands; }
-      return commands.concat(addon.commands);
-    }, []);
+    let commands: CommandConstructor[] = [];
+
+    this.addons.forEach(addon => {
+      if (!addon.commands) { return; }
+      commands = commands.concat(addon.commands);
+    });
+
+    return commands;
   }
 
   /*
