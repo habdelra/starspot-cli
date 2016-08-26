@@ -7,7 +7,8 @@
   "scripts": {
     "test": "mocha",
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm test && npm run build"
+    "prepublish": "npm test && npm run build",
+    "postversion": "npm publish && git push && git push --tags"
   },
   "bin": {
     "starspot": "./dist/bin/starspot.js"
