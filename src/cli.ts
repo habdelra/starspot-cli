@@ -45,9 +45,15 @@ export default class CLI {
     let commandName = this.argv.shift() || "server";
     // let commandArgs = this.argv;
 
-    let command: Command;
+    // This is a performance optimization, because in-app addons can be written
+    // in TypeScript and thus this may be the first code path that triggers
+    // instantiating the TypeScript compiler. If compiling in-app addons to
+    // discover commands, it can add several hundred milliseconds to start time
+    // before the user sees any feedback. Instead, we search built-in commands
+    // first, because they will have been precompiled to JavaScript. Only if the
+    // command was not found do we load addons and search their commands.
+    let command = this.findCommand(this.project.builtInCommands, commandName);
 
-    command = this.findCommand(this.project.builtInCommands, commandName);
     if (!command) {
       command = this.findCommand(this.project.addonCommands, commandName);
     }
