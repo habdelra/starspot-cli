@@ -14,7 +14,8 @@
     "starspot": "./dist/bin/starspot.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "dns.js"
   ],
   "repository": {
     "type": "git",
