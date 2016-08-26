@@ -1,8 +1,10 @@
-import * as dotenv from "dotenv";
-import { Application, Resolver } from "starspot";
 import * as http from "http";
 import * as http2 from "http2";
+import * as dotenv from "dotenv";
+import * as chokidar from "chokidar";
 import { readFile } from "mz/fs";
+
+import { Application, Resolver } from "starspot";
 import Task from "../task";
 // import SSLNotFoundError from "../errors/ssl-not-found-error";
 import { SSL_KEY_PATH, SSL_CERT_PATH, DNS_TLD } from "../config";
@@ -24,9 +26,10 @@ export default class ServerTask extends Task {
       silent: true
     });
 
-    let app = await this.bootApp();
-
+    let [app, resolver] = await this.bootApp();
     let [key, cert] = await readSSLCerts(this.project.rootPath);
+
+    this.startWatcher(resolver);
 
     return new Promise<ServerAddressInfo>((resolve, reject) => {
       let server: Server;
@@ -62,15 +65,25 @@ export default class ServerTask extends Task {
     });
   }
 
-  async bootApp(): Promise<Application> {
+  async bootApp(): Promise<[Application, Resolver]> {
     let resolver = new Resolver(this.project.appPath);
 
     let app = this.project.application({
       resolver
     });
+
     await app.boot();
 
-    return app;
+    return [app, resolver];
+  }
+
+  startWatcher(_: Resolver) {
+    chokidar.watch(this.project.appPath, {
+      ignored: /[\/\\]\./,
+      ignoreInitial: true
+    }).on("all", (event: string, path: string) => {
+      console.log(path, "changed");
+    });
   }
 }
 

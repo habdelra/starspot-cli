@@ -61,11 +61,13 @@ export default class Project {
     });
   }
 
-  get application(): Application {
+  application(options?: any): Application {
     if (this._application) { return this._application; }
 
-    let ApplicationClass: any;
+    let ApplicationClass: { new(options: any): Application };
+
     let applicationPath = this.appPath + "/application";
+    console.log(applicationPath);
     let relativePath = relative(this.cwd, applicationPath);
     let fileExtension = this.fileExtension;
 
@@ -79,10 +81,12 @@ export default class Project {
       throw new Error(`Starspot loaded your ${relativePath}.${fileExtension} file but it doesn't have a default export. Make sure you export a subclass of Application as the default export.`);
     }
 
-    return this._application = new (ApplicationClass as any)({
+    let applicationOptions = defaults(options, {
       ui: this.ui,
       rootPath: this.appPath
-    }) as Application;
+    });
+
+    return this._application = new ApplicationClass(applicationOptions);
   }
 
   get commands(): CommandConstructor[] {
@@ -231,4 +235,20 @@ function loadAddon(addonsPath: string, [addonPath, pkg]: AddonPkg) {
   addon.name = pkg.name;
 
   return addon;
+}
+
+function defaults(options: any, defaults: any) {
+  if (!options) { return defaults; }
+
+  let result: any = {};
+
+  for (let key in defaults) {
+    result[key] = defaults[key];
+  }
+
+  for (let key in options) {
+    result[key] = options[key];
+  }
+
+  return result;
 }

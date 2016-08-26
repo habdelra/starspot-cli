@@ -83,7 +83,7 @@ describe("Project", function() {
 
     // Fixtures contain a stub application that is just a constructor function
     // that assigns passed options as properties.
-    let app: any = project.application;
+    let app: any = project.application();
     expect(app.ui).to.be.an.instanceof(UI);
     expect(app.rootPath).to.be.equal(__dirname + "/fixtures/basic-project/app");
   });
