@@ -1,5 +1,5 @@
 import Command from "../command";
-import { ServerAddressInfo } from "../tasks/server";
+import { ServerAddressInfo } from "../tasks/start-server";
 
 const defaultPort = process.env.PORT || 8000;
 
@@ -34,7 +34,7 @@ export default class ServerCommand extends Command {
     }
 
     let dnsTask = this.project.getTask("start-dns");
-    let serverTask = this.project.getTask("server");
+    let serverTask = this.project.getTask("start-server");
 
     let [, address] = await Promise.all<void, ServerAddressInfo>([dnsTask.invoke(), serverTask.invoke()]);
 

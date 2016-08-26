@@ -6,7 +6,7 @@ import Environment from "../src/environment";
 
 import { StubProject, StubUI } from "./helpers/stubs";
 
-import { ServerAddressInfo } from "../src/tasks/server";
+import { ServerAddressInfo } from "../src/tasks/start-server";
 import ServerCommand from "../src/commands/server";
 
 describe("ServerCommand", function() {
@@ -22,7 +22,7 @@ describe("ServerCommand", function() {
     let project = new StubProject();
     project.stubTask("setup");
     project.stubTask("start-dns");
-    project.stubTask("server");
+    project.stubTask("start-server");
 
     let command = new ServerCommand({
       env,
@@ -37,7 +37,7 @@ describe("ServerCommand", function() {
 
     // Order in which the DNS server and the HTTP(S) server are started doesn't matter,
     // so just check that they both got called at some point.
-    expect(project.invokedTasks.slice(1)).to.include.members(["start-dns", "server"]);
+    expect(project.invokedTasks.slice(1)).to.include.members(["start-dns", "start-server"]);
   });
 
   it("emits a UI event when the server starts", async function() {
@@ -75,7 +75,7 @@ describe("ServerCommand", function() {
     let project = new StubProject();
     let setupTask = project.stubTask("setup");
     project.stubTask("start-dns");
-    project.stubTask("server");
+    project.stubTask("start-server");
 
     let command = new ServerCommand({
       env,
@@ -100,7 +100,7 @@ describe("ServerTask", function() {
       });
 
       it("starts a server on port 8000 by default", async function() {
-        let task = project.getTask("server");
+        let task = project.getTask("start-server");
         let info = await task.invoke<ServerAddressInfo>();
 
         try {
@@ -121,7 +121,7 @@ describe("ServerTask", function() {
 
         try {
           process.env.PORT = 43294;
-          let task = project.getTask("server");
+          let task = project.getTask("start-server");
           let info = await task.invoke<ServerAddressInfo>();
 
           try {

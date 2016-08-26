@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import { Application } from "starspot";
+import { Application, Resolver } from "starspot";
 import * as http from "http";
 import * as http2 from "http2";
 import { readFile } from "mz/fs";
@@ -63,7 +63,11 @@ export default class ServerTask extends Task {
   }
 
   async bootApp(): Promise<Application> {
-    let app = this.project.application;
+    let resolver = new Resolver(this.project.appPath);
+
+    let app = this.project.application({
+      resolver
+    });
     await app.boot();
 
     return app;

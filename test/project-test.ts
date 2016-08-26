@@ -69,7 +69,7 @@ describe("Project", function() {
       cwd: basicProjectFixture
     });
 
-    let task = project.getTask("server");
+    let task = project.getTask("start-server");
 
     expect(task).to.be.an.instanceof(Task);
     expect(task.constructor.name).to.equal("ServerTask");
