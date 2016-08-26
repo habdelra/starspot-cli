@@ -1,6 +1,6 @@
-import Command from "./command";
+import { CommandConstructor } from "./command";
 
 export default class Addon {
   public name: string;
-  public commands: typeof Command[];
+  public commands: CommandConstructor[];
 }

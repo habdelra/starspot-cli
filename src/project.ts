@@ -7,16 +7,10 @@ import UI from "./ui";
 import Task from "./task";
 import Addon from "./addon";
 import Environment from "./environment";
-import Command, { ConstructorOptions as CommandConstructorOptions } from "./command";
+import { CommandConstructor } from "./command";
 
 export interface TaskConstructor {
   new (options: any): Task;
-}
-
-export interface CommandConstructor {
-  new <T extends Command>(options: CommandConstructorOptions): T;
-  command: string;
-  aliases?: string[];
 }
 
 export interface ConstructorOptions {

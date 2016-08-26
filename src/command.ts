@@ -37,3 +37,9 @@ abstract class Command {
 }
 
 export default Command;
+
+export interface CommandConstructor {
+  new <T extends Command>(options: ConstructorOptions): T;
+  command: string;
+  aliases?: string[];
+}

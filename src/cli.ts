@@ -1,7 +1,7 @@
 import UI from "./ui";
-import Project, { CommandConstructor } from "./project";
+import Project from "./project";
 import Environment from "./environment";
-import Command from "./command";
+import Command, { CommandConstructor } from "./command";
 import HandledError from "./errors/handled-error";
 
 export interface CLIOptions {
