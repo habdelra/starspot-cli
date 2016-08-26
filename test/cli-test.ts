@@ -15,7 +15,7 @@ describe("CLI", function() {
   }
 
   let project: any = {
-    commands: [
+    builtInCommands: [
       RunTestCommand
     ]
   };
