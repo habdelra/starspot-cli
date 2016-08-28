@@ -77,12 +77,12 @@ export default class ServerTask extends Task {
     return [app, resolver];
   }
 
-  startWatcher(_: Resolver) {
+  startWatcher(resolver: Resolver) {
     chokidar.watch(this.project.appPath, {
       ignored: /[\/\\]\./,
       ignoreInitial: true
-    }).on("all", (event: string, path: string) => {
-      console.log(path, "changed");
+    }).on("all", (_: string, path: string) => {
+      resolver.fileDidChange(path);
     });
   }
 }
