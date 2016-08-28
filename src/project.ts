@@ -67,7 +67,6 @@ export default class Project {
     let ApplicationClass: { new(options: any): Application };
 
     let applicationPath = this.appPath + "/application";
-    console.log(applicationPath);
     let relativePath = relative(this.cwd, applicationPath);
     let fileExtension = this.fileExtension;
 
