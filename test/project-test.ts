@@ -141,6 +141,17 @@ describe("Project", function() {
 
     expect(myCommand).to.exist;
     expect(myCommand.prototype).to.be.an.instanceof(Command);
+  });
 
+  it("discovers initializers in addons", async function() {
+    let project = new Project({
+      cwd: fixture("addons-with-initializers-project")
+    });
+
+    let application: any = project.application();
+    await application.boot();
+
+    expect(application.initializerA).to.be.true;
+    expect(application.initializerB).to.be.true;
   });
 });

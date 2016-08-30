@@ -82,7 +82,8 @@ export default class Project {
 
     let applicationOptions = defaults(options, {
       ui: this.ui,
-      rootPath: this.appPath
+      rootPath: this.appPath,
+      initializers: this.addonInitializers
     });
 
     return this._application = new ApplicationClass(applicationOptions);
@@ -147,6 +148,17 @@ export default class Project {
     });
 
     return commands;
+  }
+
+  get addonInitializers(): Application.Initializer[] {
+    let initializers: Application.Initializer[] = [];
+
+    this.addons.forEach(addon => {
+      if (!addon.initializers) { return; }
+      initializers = initializers.concat(addon.initializers);
+    });
+
+    return initializers;
   }
 
   /*
