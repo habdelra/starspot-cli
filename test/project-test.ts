@@ -154,4 +154,5 @@ describe("Project", function() {
     expect(application.initializerA).to.be.true;
     expect(application.initializerB).to.be.true;
   });
+
 });
