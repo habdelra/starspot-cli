@@ -48,6 +48,18 @@ export default <Formatters>{
       return `Unable to enable SSL: couldn't find missing file ${missingFile}`;
     },
 
+    "conflicting-modules"({ entityName, entityType, paths }: { entityName: string, entityType: string, paths: string[] }) {
+      return `Starspot found multiple files that could be the ${entityName} ${entityType}, \
+and doesn't know which one to load. To fix this, merge or delete all but one \
+of the following files:
+
+${paths.map(p => `* ${p}`).join("\n")}`;
+    },
+
+    "no-default-export"({ path }) {
+      return `File at ${path} does not export a default value. Make sure you are exporting a default value from this module, using the \`export default ...\` syntax.`;
+    },
+
     "Error"(error) {
       return error.stack;
     }
