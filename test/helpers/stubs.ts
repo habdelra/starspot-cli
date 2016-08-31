@@ -1,6 +1,6 @@
+import { Environment } from "starspot";
 import Project from "../../src/project";
 import Task from "../../src/task";
-import Environment from "../../src/environment";
 import UI from "../../src/ui";
 import { EventEmitter } from "events";
 

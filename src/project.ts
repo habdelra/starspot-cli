@@ -1,12 +1,11 @@
 import { existsSync, readFileSync, readdirSync } from "fs";
 import { dirname, relative } from "path";
 
-import { Application } from "starspot";
+import { Application, Environment } from "starspot";
 
 import UI from "./ui";
 import Task from "./task";
 import Addon from "./addon";
-import Environment from "./environment";
 import { CommandConstructor } from "./command";
 
 export interface TaskConstructor {

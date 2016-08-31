@@ -1,5 +1,5 @@
+import { Environment } from "starspot";
 import Project from "./project";
-import Environment from "./environment";
 import UI from "./ui";
 
 export interface Alias {

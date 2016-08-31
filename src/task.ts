@@ -1,6 +1,6 @@
+import { Environment } from "starspot";
 import UI from "./ui";
 import Project from "./project";
-import Environment from "./environment";
 import HandledError from "./errors/handled-error";
 
 export interface ConstructorOptions {
