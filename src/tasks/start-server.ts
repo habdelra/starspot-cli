@@ -26,10 +26,10 @@ export default class ServerTask extends Task {
       silent: true
     });
 
-    let [app, container] = await this.bootApp();
+    let app = await this.bootApp();
     let [key, cert] = await readSSLCerts(this.project.rootPath);
 
-    this.startWatcher(container);
+    this.startWatcher(app.container);
 
     return new Promise<ServerAddressInfo>((resolve, reject) => {
       let server: Server;
@@ -65,20 +65,16 @@ export default class ServerTask extends Task {
     });
   }
 
-  async bootApp(): Promise<[Application, Container]> {
-    let container = new Container(this.project.appPath);
-
-    let app = this.project.application({
-      container
-    });
+  async bootApp(): Promise<Application> {
+    let app = this.project.application();
 
     await app.boot();
 
-    return [app, container];
+    return app;
   }
 
   startWatcher(container: Container) {
-    chokidar.watch(this.project.appPath, {
+    chokidar.watch(this.project.rootPath + "/app", {
       ignored: /[\/\\]\./,
       ignoreInitial: true
     }).on("all", (_: string, path: string) => {

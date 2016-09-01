@@ -25,7 +25,6 @@ describe("Project", function() {
     });
 
     expect(project.rootPath).to.equal(__dirname + "/fixtures/basic-project");
-    expect(project.appPath).to.equal(__dirname + "/fixtures/basic-project/app");
   });
 
   it("uses the precompiled dist directory in production", function() {
@@ -39,7 +38,7 @@ describe("Project", function() {
       });
 
       expect(project.rootPath).to.equal(__dirname + "/fixtures/basic-project");
-      expect(project.appPath).to.equal(__dirname + "/fixtures/basic-project/dist/app");
+      expect(project.containerRootPath).to.equal(__dirname + "/fixtures/basic-project/dist/");
     } finally {
       process.env.NODE_ENV = oldEnv;
     }
@@ -85,7 +84,7 @@ describe("Project", function() {
     // that assigns passed options as properties.
     let app: any = project.application();
     expect(app.ui).to.be.an.instanceof(UI);
-    expect(app.rootPath).to.be.equal(__dirname + "/fixtures/basic-project/app");
+    expect(app.rootPath).to.be.equal(__dirname + "/fixtures/basic-project");
   });
 
   it("returns a list of available Command classes", function() {

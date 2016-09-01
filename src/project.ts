@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "fs";
-import { dirname, relative } from "path";
+import { dirname } from "path";
 
-import { Application, Environment } from "starspot";
+import { Application, Container, Environment } from "starspot";
 
 import UI from "./ui";
 import Task from "./task";
@@ -42,8 +42,8 @@ export default class Project {
     this.name = this.pkg.name;
   }
 
-  get appPath(): string {
-    let path = this.env.isProduction ? "/dist/app" : "/app";
+  get containerRootPath(): string {
+    let path = this.env.isProduction ? "/dist/" : "/";
     return this.rootPath + path;
   }
 
@@ -63,26 +63,21 @@ export default class Project {
   application(options?: any): Application {
     if (this._application) { return this._application; }
 
-    let ApplicationClass: { new(options: any): Application };
+    let container = new Container({
+      rootPath: this.containerRootPath
+    });
 
-    let applicationPath = this.appPath + "/application";
-    let relativePath = relative(this.cwd, applicationPath);
-    let fileExtension = this.fileExtension;
-
-    try {
-      ApplicationClass = require(applicationPath).default;
-    } catch (e) {
-      throw new Error(`Starspot couldn't find an Application class to instantiate. Create a new file at ${relativePath}.${fileExtension} and make sure it exports a subclass of Application as its default export.`);
-    }
+    let ApplicationClass = container.findFactory("application", Container.MAIN);
 
     if (!ApplicationClass) {
-      throw new Error(`Starspot loaded your ${relativePath}.${fileExtension} file but it doesn't have a default export. Make sure you export a subclass of Application as the default export.`);
+      throw new Error(`Starspot couldn't find an application to instantiate. Create an application file at app/application.${this.fileExtension} and make sure it exports a subclass of Application as its default export.`);
     }
 
     let applicationOptions = defaults(options, {
       ui: this.ui,
-      rootPath: this.appPath,
-      initializers: this.addonInitializers
+      rootPath: this.rootPath,
+      initializers: this.addonInitializers,
+      container
     });
 
     return this._application = new ApplicationClass(applicationOptions);
