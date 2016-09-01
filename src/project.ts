@@ -112,7 +112,7 @@ export default class Project {
       .map(addon => loadAddon(addonsPath, addon));
   }
 
-  public get isTypeScript(): boolean {
+  get isTypeScript(): boolean {
     let pkg = this.pkg;
     let deps = pkg.dependencies || {};
     let devDeps = pkg.devDependencies || {};
@@ -120,7 +120,7 @@ export default class Project {
     return !!(deps["typescript"] || devDeps["typescript"]);
   }
 
-  private get fileExtension(): string {
+  get fileExtension(): string {
     return this.isTypeScript ? "ts" : "js";
   }
 
