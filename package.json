@@ -1,6 +1,6 @@
 {
   "name": "starspot-cli",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "CLI tools for starspot",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
