@@ -33,10 +33,16 @@ abstract class Command {
     this.env = options.env;
   }
 
-  abstract async run(): Promise<any>;
+  abstract async run(options: Command.RunOptions): Promise<any>;
 }
 
 export default Command;
+
+namespace Command {
+  export interface RunOptions {
+    args: string[];
+  }
+}
 
 export interface CommandConstructor {
   new <T extends Command>(options: ConstructorOptions): T;

@@ -43,7 +43,7 @@ export default class CLI {
 
   async run(): Promise<any> {
     let commandName = this.argv.shift() || "server";
-    // let commandArgs = this.argv;
+    let commandArgs = this.argv;
 
     // This is a performance optimization, because in-app addons can be written
     // in TypeScript and thus this may be the first code path that triggers
@@ -60,7 +60,9 @@ export default class CLI {
 
     if (command) {
       try {
-        return command.run();
+        return command.run({
+          args: commandArgs
+        });
       } catch (e) {
         if (!(e instanceof HandledError)) {
           this.ui.error(e);
